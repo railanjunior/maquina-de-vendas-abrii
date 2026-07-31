@@ -1,0 +1,27 @@
+{
+  "name": "Conexão · Adapta Summit",
+  "short_name": "Conexão",
+  "description": "Pré-cadastro de contatos do evento: 30 segundos, entra no grupo oficial.",
+  "start_url": "/?src=app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#04050d",
+  "theme_color": "#04050d",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Painel de leads",
+      "short_name": "Painel",
+      "url": "/admin?src=atalho",
+      "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

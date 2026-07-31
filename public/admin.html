@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel · Captação de contatos</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#04050d">
+<meta name="color-scheme" content="dark">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/assets/icon-192.png">
+<link rel="apple-touch-icon" href="/assets/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="/assets/app.css">
+<style>
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(132px,1fr)); gap:11px; margin-bottom:18px; }
+  .stat { padding:15px 16px; border-radius:15px; border:1px solid var(--line); background:var(--surface); backdrop-filter:blur(12px); }
+  .stat b { display:block; font-family:var(--font-display); font-size:27px; line-height:1.1; }
+  .stat span { font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.09em; font-weight:600; }
+
+  .grid { display:grid; grid-template-columns:minmax(0,340px) minmax(0,1fr); gap:18px; align-items:start; }
+  @media (max-width:860px) { .grid { grid-template-columns:1fr; } }
+
+  .qr-frame { background:#fff; border-radius:16px; padding:14px; display:grid; place-items:center; }
+  .qr-frame canvas { width:100%; height:auto; display:block; image-rendering:pixelated; }
+
+  .toolbar { display:flex; gap:9px; flex-wrap:wrap; margin-bottom:14px; }
+
+  .lead { position:relative; padding:15px 16px; border-radius:15px; border:1px solid var(--line); background:var(--surface); margin-bottom:10px; }
+  .lead:hover { border-color:var(--line-strong); }
+  .lead-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+  .lead-name { font-family:var(--font-display); font-size:16.5px; font-weight:700; }
+  .lead-when { font-size:11px; color:var(--muted); white-space:nowrap; }
+  .lead-meta { font-size:13px; color:var(--ink-dim); margin-top:3px; }
+  .lead-challenge { font-size:12.5px; color:var(--muted); margin-top:8px; padding-left:10px; border-left:2px solid var(--line-strong); font-style:italic; }
+  .tags { display:flex; flex-wrap:wrap; gap:5px; margin-top:9px; }
+  .tag { font-size:10.5px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; padding:4px 8px; border-radius:6px; background:rgba(43,107,255,0.16); color:#9fc0ff; border:1px solid rgba(43,107,255,0.28); }
+  .tag--hot { background:rgba(255,45,85,0.16); color:#ffa3b8; border-color:rgba(255,45,85,0.32); }
+  .lead-actions { display:flex; gap:7px; margin-top:11px; flex-wrap:wrap; }
+  .mini { font-size:12px; font-weight:600; padding:7px 11px; border-radius:9px; cursor:pointer; border:1px solid var(--line-strong); background:rgba(255,255,255,0.05); color:var(--ink-dim); text-decoration:none; display:inline-flex; align-items:center; gap:5px; }
+  .mini:hover { background:rgba(255,255,255,0.1); color:var(--ink); }
+  .mini--wa { border-color:rgba(37,211,102,0.4); color:#7ef0aa; }
+  .mini--danger { border-color:rgba(255,45,85,0.35); color:#ff9db2; }
+
+  .empty { text-align:center; padding:46px 18px; color:var(--muted); }
+
+  /* Modo totem: QR em tela cheia para deixar exposto na mesa */
+  .totem { position:fixed; inset:0; z-index:90; display:none; place-items:center; background:var(--bg); padding:24px; text-align:center; }
+  .totem.show { display:grid; }
+  .totem .inner { display:grid; gap:20px; justify-items:center; max-width:min(560px,92vw); }
+  .totem .qr-frame { width:min(66vh,86vw); padding:18px; }
+  .totem h2 { font-size:clamp(24px,5vw,38px); }
+  .totem p { color:var(--ink-dim); font-size:clamp(14px,2.4vw,18px); }
+  .totem .exit { position:fixed; top:16px; right:16px; }
+</style>
+</head>
+<body>
+<div class="bg-fx"></div>
+<div class="scanline"></div>
+
+<!-- ================= Porta de entrada (PIN) ================= -->
+<main class="shell" id="gate">
+  <header style="margin-bottom:20px">
+    <span class="eyebrow"><i class="dot"></i>Área restrita</span>
+    <h1 style="font-size:clamp(26px,7vw,34px);margin:14px 0 8px">Painel de <span class="gradient-text">captação</span></h1>
+    <p class="lead-text">Digite o PIN para ver os contatos coletados.</p>
+  </header>
+
+  <section class="card card--glow">
+    <div id="gateNotice"></div>
+    <form id="pinForm">
+      <div class="field" data-for="pin">
+        <label for="pin">PIN de acesso</label>
+        <input class="input" type="password" id="pin" inputmode="numeric" autocomplete="current-password"
+               placeholder="••••••" enterkeyhint="go" required>
+        <p class="error-msg">PIN incorreto.</p>
+      </div>
+      <button type="submit" class="btn" id="btnEnter">Entrar</button>
+    </form>
+    <p class="tiny" style="margin-top:14px">
+      O PIN é a variável <b>ADMIN_PIN</b> configurada no Vercel.
+    </p>
+  </section>
+</main>
+
+<!-- ================= Painel ================= -->
+<main class="shell shell--wide" id="panel" style="display:none">
+
+  <div class="topbar">
+    <div>
+      <span class="eyebrow"><i class="dot"></i><span id="eventLabel">Painel</span></span>
+      <h1 style="font-size:clamp(24px,5vw,32px);margin-top:12px">Contatos <span class="gradient-text">captados</span></h1>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="mini" id="btnRefresh">↻ Atualizar</button>
+      <button class="mini" id="btnLogout">Sair</button>
+    </div>
+  </div>
+
+  <div id="panelNotice"></div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="grid">
+    <!-- ---------- Coluna QR ---------- -->
+    <aside style="display:grid;gap:14px">
+      <section class="card card--glow">
+        <h2 style="font-size:16px;margin-bottom:4px">QR do pré-cadastro</h2>
+        <p class="tiny" style="margin-bottom:14px">A pessoa aponta a câmera e cai direto no formulário.</p>
+        <div class="qr-frame"><canvas id="qrCanvas"></canvas></div>
+        <p class="tiny" style="margin:11px 0 12px;word-break:break-all" id="formUrl"></p>
+        <div style="display:grid;gap:8px">
+          <button class="btn btn--sm" id="btnTotem" style="width:100%">Modo totem (tela cheia)</button>
+          <div class="btn-row">
+            <button class="mini" id="btnCopyLink" style="flex:1;justify-content:center">Copiar link</button>
+            <button class="mini" id="btnDownloadQr" style="flex:1;justify-content:center">Baixar PNG</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 style="font-size:16px;margin-bottom:4px">Exportar</h2>
+        <p class="tiny" style="margin-bottom:13px">Para montar o grupo e trabalhar os leads depois.</p>
+        <div style="display:grid;gap:8px">
+          <button class="mini" id="btnVcf" style="justify-content:center">📇 Baixar agenda (.vcf)</button>
+          <button class="mini" id="btnCsv" style="justify-content:center">📊 Baixar planilha (.csv)</button>
+          <button class="mini" id="btnPhones" style="justify-content:center">📱 Copiar só os números</button>
+          <button class="mini" id="btnJson" style="justify-content:center">💾 Backup completo (.json)</button>
+        </div>
+        <p class="tiny" style="margin-top:12px">
+          Dica: importe o <b>.vcf</b> no celular para todos virarem contatos — aí o WhatsApp
+          deixa adicionar todo mundo no grupo de uma vez.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2 style="font-size:16px;margin-bottom:10px">Saúde do sistema</h2>
+        <div id="health" class="tiny">Verificando…</div>
+      </section>
+    </aside>
+
+    <!-- ---------- Coluna lista ---------- -->
+    <section>
+      <div class="toolbar">
+        <input class="input" id="search" placeholder="Buscar por nome, empresa, número…" style="flex:1;min-width:180px">
+        <select class="select" id="filterInterest" style="width:auto">
+          <option value="">Todos os interesses</option>
+          <option value="grupo-evento">Grupo do evento</option>
+          <option value="automacao-ia">Automação com IA</option>
+          <option value="maquina-de-vendas">Máquina de vendas</option>
+          <option value="trafego-pago">Tráfego pago</option>
+          <option value="consultoria">Consultoria</option>
+          <option value="parceria">Parceria</option>
+        </select>
+      </div>
+      <div id="leadList"></div>
+    </section>
+  </div>
+
+  <footer class="foot tiny" style="margin-top:30px">
+    <a href="/" target="_blank" rel="noopener">Abrir formulário público ↗</a>
+  </footer>
+</main>
+
+<!-- ================= Modo totem ================= -->
+<div class="totem" id="totem">
+  <button class="mini exit" id="btnTotemExit">✕ Sair</button>
+  <div class="inner">
+    <h2>Aponte a câmera<br><span class="gradient-text">e entre no grupo</span></h2>
+    <div class="qr-frame"><canvas id="qrCanvasBig"></canvas></div>
+    <p id="totemUrl"></p>
+  </div>
+</div>
+
+<script src="/assets/qrcode.js"></script>
+<script src="/assets/admin.js"></script>
+</body>
+</html>
