@@ -292,6 +292,9 @@
     var url = formUrl();
     $('#formUrl').textContent = url;
     $('#totemUrl').textContent = url;
+    // A lista de contatos é o que importa aqui; um QR que não desenha não pode
+    // derrubar o painel inteiro.
+    if (typeof QrDraw === 'undefined' || typeof qrcode === 'undefined') return;
     QrDraw.desenhar($('#qrCanvas'), url);
     QrDraw.desenhar($('#qrCanvasBig'), url);
   }

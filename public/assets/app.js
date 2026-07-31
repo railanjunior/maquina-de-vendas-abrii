@@ -417,8 +417,19 @@
   /* ------------------------------------------------------- service worker */
 
   if ('serviceWorker' in navigator) {
+    // Quando um Service Worker novo assume, a página em memória ainda é a
+    // antiga. Recarregar uma vez garante que HTML e scripts venham da mesma
+    // versão — durante um evento não dá para pedir "limpa o cache aí".
+    var jaRecarregou = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (jaRecarregou) return;
+      jaRecarregou = true;
+      location.reload();
+    });
+
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('/sw.js').then(function (reg) {
+        reg.update().catch(function () { /* offline */ });
         // Background Sync: reenvia a fila mesmo com a aba fechada.
         if ('sync' in reg) {
           reg.sync.register('flush-leads').catch(function () { /* sem permissão, seguimos com os timers */ });
@@ -430,6 +441,15 @@
   /* --------------------------------------------------------------- boot */
 
   $('#btnShowQr').addEventListener('click', function () { location.href = '/qr'; });
+
+  // O formulário é o que não pode falhar. Se o módulo de perfil não carregar
+  // (rede ruim, cache antigo), a página segue funcionando sem o cartão em vez
+  // de morrer com "Perfil is not defined".
+  if (typeof Perfil === 'undefined') {
+    LeadQueue.flush().then(refreshQueueBadge);
+    renderStep();
+    return;
+  }
 
   Perfil.load().then(function (cfg) {
     state.cfg = cfg;

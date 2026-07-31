@@ -6,11 +6,18 @@
      2. Reenviar a fila de cadastros via Background Sync — funciona ate com a
         aba fechada, que e exatamente o cenario de quem preenche e guarda o
         celular no bolso.
+
+   Sobre cache: a versao anterior servia os estaticos com "cache primeiro".
+   Isso quebrou o app em producao — depois de um deploy, o aparelho recebia o
+   HTML novo junto com o JavaScript velho, e a pagina morria com
+   "X is not defined". Agora o codigo e sempre buscado na rede, com o cache
+   servindo so de rede de seguranca quando nao ha conexao.
    ========================================================================= */
 
 importScripts('/assets/queue-core.js');
 
-var CACHE = 'adapta-shell-v2';
+var CACHE = 'adapta-shell-v3';
+
 var SHELL = [
   '/',
   '/admin',
@@ -29,6 +36,11 @@ var SHELL = [
   '/assets/icon-512.png',
   '/assets/icon-180.png',
 ];
+
+/** Recursos cujo conteudo muda a cada deploy e nao podem sair de um cache velho. */
+function ehCodigo(pathname) {
+  return /\.(js|css|json|webmanifest)$/.test(pathname) || pathname === '/perfil.json';
+}
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
@@ -55,6 +67,23 @@ self.addEventListener('activate', function (event) {
   );
 });
 
+/** Busca na rede e atualiza o cache; cai para o cache se a rede falhar. */
+function redePrimeiro(req, respostaFinal) {
+  return fetch(req)
+    .then(function (res) {
+      if (res && res.ok) {
+        var copia = res.clone();
+        caches.open(CACHE).then(function (c) { c.put(req, copia); });
+      }
+      return res;
+    })
+    .catch(function () {
+      return caches.match(req).then(function (hit) {
+        return hit || (respostaFinal ? respostaFinal() : Response.error());
+      });
+    });
+}
+
 self.addEventListener('fetch', function (event) {
   var req = event.request;
   if (req.method !== 'GET') return; // POST de lead nunca passa por cache
@@ -64,24 +93,11 @@ self.addEventListener('fetch', function (event) {
 
   // API: rede primeiro, cache so como ultimo recurso para /api/app-config.
   if (url.pathname.indexOf('/api/') === 0) {
-    event.respondWith(
-      fetch(req)
-        .then(function (res) {
-          if (url.pathname === '/api/app-config' && res.ok) {
-            var copy = res.clone();
-            caches.open(CACHE).then(function (c) { c.put(req, copy); });
-          }
-          return res;
-        })
-        .catch(function () {
-          return caches.match(req).then(function (hit) {
-            return hit || new Response(JSON.stringify({ ok: false, offline: true }), {
-              status: 503,
-              headers: { 'Content-Type': 'application/json' },
-            });
-          });
-        })
-    );
+    event.respondWith(redePrimeiro(req, function () {
+      return new Response(JSON.stringify({ ok: false, offline: true }), {
+        status: 503, headers: { 'Content-Type': 'application/json' },
+      });
+    }));
     return;
   }
 
@@ -95,17 +111,24 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // Estaticos: cache primeiro, revalidando em segundo plano.
+  // Codigo (js/css/json): rede primeiro. Garante que HTML e script sempre
+  // venham da mesma versao do deploy.
+  if (ehCodigo(url.pathname)) {
+    event.respondWith(redePrimeiro(req));
+    return;
+  }
+
+  // Imagens e fontes: cache primeiro, revalidando em segundo plano.
   event.respondWith(
     caches.match(req).then(function (hit) {
-      var network = fetch(req).then(function (res) {
+      var rede = fetch(req).then(function (res) {
         if (res && res.ok) {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, copy); });
+          var copia = res.clone();
+          caches.open(CACHE).then(function (c) { c.put(req, copia); });
         }
         return res;
       }).catch(function () { return hit; });
-      return hit || network;
+      return hit || rede;
     })
   );
 });
@@ -129,8 +152,10 @@ self.addEventListener('periodicsync', function (event) {
 });
 
 self.addEventListener('message', function (event) {
-  if (!event.data || event.data.type !== 'flush-leads') return;
-  event.waitUntil(self.LeadQueue.flush().then(notifyClients));
+  if (!event.data) return;
+  if (event.data.type === 'flush-leads') {
+    event.waitUntil(self.LeadQueue.flush().then(notifyClients));
+  }
 });
 
 function notifyClients(result) {

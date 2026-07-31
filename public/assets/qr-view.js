@@ -18,6 +18,15 @@
   function render() {
     var url = urlFormulario();
     $('#qrUrl').textContent = url.replace(/^https?:\/\//, '');
+
+    // Sem o desenhista não há QR — e uma tela de QR vazia é pior que um erro,
+    // porque a pessoa aponta a câmera e fica esperando. Avisa e oferece o link.
+    if (typeof QrDraw === 'undefined' || typeof qrcode === 'undefined') {
+      $('#qrCanvas').outerHTML =
+        '<div style="padding:26px 18px;text-align:center;color:#12307f;font-weight:600">' +
+        'Não consegui desenhar o QR agora.<br>Use o botão “Compartilhar link” abaixo.</div>';
+      return;
+    }
     QrDraw.desenhar($('#qrCanvas'), url);
   }
 
@@ -59,6 +68,8 @@
 
   render();
   segurarTela();
+
+  if (typeof Perfil === 'undefined') return;
 
   Perfil.load().then(function (cfg) {
     $('#eventLabel').textContent = cfg.evento;
