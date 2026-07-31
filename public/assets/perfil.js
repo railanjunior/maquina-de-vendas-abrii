@@ -105,13 +105,24 @@
     return itens;
   }
 
+  /** Há algo além do nome? Cartão só com nome fica esquisito e não ajuda ninguém. */
+  function temSubstancia(org) {
+    return Boolean(org.cargo || org.bio || org.instagram || org.linkedin ||
+      org.site || org.whatsapp || org.email);
+  }
+
+  /** Vale oferecer "salvar contato"? Um vCard só com nome é inútil. */
+  function podeSalvarContato(org) {
+    return Boolean(org.whatsapp || org.email || org.site);
+  }
+
   /**
    * Monta o cartão do organizador.
    * @param {'compacto'|'completo'} variante
    */
   function cardHtml(cfg, variante) {
     var org = cfg.organizador;
-    if (!org.nome) return '';
+    if (!org.nome || !temSubstancia(org)) return '';
 
     var avatar = org.foto
       ? '<img class="perfil-foto" src="' + esc(org.foto) + '" alt="' + esc(org.nome) + '">'
@@ -133,9 +144,11 @@
         '</div>' +
         (variante === 'completo' && org.bio ? '<p class="perfil-bio">' + esc(org.bio) + '</p>' : '') +
         (linhaLinks ? '<div class="perfil-links">' + linhaLinks + '</div>' : '') +
-        '<button type="button" class="btn btn--ghost btn--sm perfil-salvar" data-salvar-contato>' +
-          'Salvar meu contato' +
-        '</button>' +
+        (podeSalvarContato(org)
+          ? '<button type="button" class="btn btn--ghost btn--sm perfil-salvar" data-salvar-contato>' +
+              'Salvar meu contato' +
+            '</button>'
+          : '') +
       '</div>';
   }
 
