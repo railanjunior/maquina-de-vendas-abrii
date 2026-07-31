@@ -23,7 +23,8 @@
   var steps = $$('.step');
   var TOTAL = steps.length;
 
-  var state = { step: 1, appConfig: {}, lastLead: null, deferredPrompt: null };
+  // cfg é o perfil normalizado (perfil.json + variáveis de ambiente).
+  var state = { step: 1, cfg: { organizador: {}, textos: {} }, lastLead: null, deferredPrompt: null };
 
   /* ---------------------------------------------------------------- utils */
 
@@ -222,10 +223,10 @@
   });
 
   function whatsappFallbackUrl(lead) {
-    var phone = state.appConfig.organizerWhatsapp;
+    var phone = state.cfg.organizador.whatsapp;
     if (!phone || !lead) return '';
     var lines = [
-      'Pre-cadastro ' + (state.appConfig.eventName || 'do evento') + ':',
+      'Pre-cadastro ' + (state.cfg.evento || 'do evento') + ':',
       'Nome: ' + lead.name,
       'WhatsApp: +' + lead.whatsapp,
     ];
@@ -240,6 +241,9 @@
 
   function showSuccess(synced) {
     formCard.style.display = 'none';
+    // O cartão do topo sai de cena: a versão completa dele vive dentro da
+    // confirmação, e duas cópias na mesma tela ficam redundantes.
+    $('#perfilCard').style.display = 'none';
     successCard.style.display = '';
     // A tela de sucesso já tem o botão de instalar; a barra viraria repetição.
     $('#installBar').classList.remove('show');
@@ -264,11 +268,18 @@
       scheduleRetries();
     }
 
-    var groupUrl = state.appConfig.whatsappGroupUrl;
+    // Entrar no grupo é a ação principal da tela.
     var btnGroup = $('#btnGroup');
-    if (groupUrl) {
-      btnGroup.href = groupUrl;
+    if (state.cfg.grupoWhatsapp) {
+      btnGroup.href = state.cfg.grupoWhatsapp;
       btnGroup.style.display = '';
+    }
+
+    // Troca de mão dupla: ela acabou de me dar os dados dela, agora leva os meus.
+    var alvoPerfil = $('#perfilCardSucesso');
+    if (alvoPerfil && !alvoPerfil.innerHTML) {
+      alvoPerfil.innerHTML = Perfil.cardHtml(state.cfg, 'completo');
+      Perfil.ligarBotoesSalvar(state.cfg, alvoPerfil);
     }
 
     successCard.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -284,6 +295,7 @@
     state.lastLead = null;
     successCard.style.display = 'none';
     formCard.style.display = '';
+    $('#perfilCard').style.display = '';
     renderStep();
   });
 
@@ -417,20 +429,28 @@
 
   /* --------------------------------------------------------------- boot */
 
-  fetch('/api/app-config')
-    .then(function (r) { return r.json(); })
-    .then(function (cfg) {
-      state.appConfig = cfg || {};
-      if (cfg && cfg.eventName) {
-        $('#eventLabel').textContent = cfg.eventName;
-        document.title = 'Conexão · ' + cfg.eventName;
-      }
-      if (cfg && cfg.storageReady === false) {
-        notice('#formNotice', 'warn',
-          'Modo de contingência: os cadastros estão sendo guardados no aparelho e sobem assim que o servidor for configurado.');
-      }
-    })
-    .catch(function () { /* offline: seguimos com os padrões da página */ });
+  $('#btnShowQr').addEventListener('click', function () { location.href = '/qr'; });
+
+  Perfil.load().then(function (cfg) {
+    state.cfg = cfg;
+
+    $('#eventLabel').textContent = cfg.evento;
+    document.title = 'Conexão · ' + cfg.evento;
+    $('#tituloLinha1').textContent = cfg.textos.tituloLinha1;
+    $('#tituloLinha2').textContent = cfg.textos.tituloLinha2;
+    if (cfg.textos.subtitulo) $('#subtitulo').textContent = cfg.textos.subtitulo;
+
+    // O cartão de quem convidou aparece antes do formulário: a pessoa sabe
+    // com quem está falando antes de entregar os dados dela.
+    var alvo = $('#perfilCard');
+    alvo.innerHTML = Perfil.cardHtml(cfg, 'compacto');
+    Perfil.ligarBotoesSalvar(cfg, alvo);
+
+    if (!cfg.storageReady) {
+      notice('#formNotice', 'warn',
+        'Modo de contingência: os cadastros estão sendo guardados no aparelho e sobem assim que o servidor for configurado.');
+    }
+  });
 
   renderStep();
   LeadQueue.prune(30);

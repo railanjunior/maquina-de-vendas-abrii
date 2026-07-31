@@ -10,14 +10,19 @@
 
 importScripts('/assets/queue-core.js');
 
-var CACHE = 'adapta-shell-v1';
+var CACHE = 'adapta-shell-v2';
 var SHELL = [
   '/',
   '/admin',
+  '/qr',
+  '/perfil.json',
   '/manifest.webmanifest',
   '/assets/app.css',
   '/assets/app.js',
   '/assets/admin.js',
+  '/assets/perfil.js',
+  '/assets/qr-draw.js',
+  '/assets/qr-view.js',
   '/assets/queue-core.js',
   '/assets/qrcode.js',
   '/assets/icon-192.png',

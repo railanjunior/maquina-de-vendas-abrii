@@ -1,0 +1,25 @@
+{
+  "_leiame": "Tudo que aparece no app sem ser segredo mora aqui. Edite, faça commit, e o Vercel republica sozinho — sem precisar mexer no painel. Campo vazio simplesmente não aparece na tela.",
+
+  "evento": "Adapta Summit",
+
+  "organizador": {
+    "nome": "Railan Junior",
+    "cargo": "",
+    "bio": "",
+    "foto": "",
+    "whatsapp": "",
+    "email": "",
+    "site": "",
+    "instagram": "",
+    "linkedin": ""
+  },
+
+  "grupoWhatsapp": "",
+
+  "textos": {
+    "tituloLinha1": "Vamos nos",
+    "tituloLinha2": "conectar.",
+    "subtitulo": "Pré-cadastro em 30 segundos. Você entra no grupo oficial do evento e recebe os materiais direto no WhatsApp."
+  }
+}

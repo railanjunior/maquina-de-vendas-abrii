@@ -4,9 +4,24 @@ App de pré-cadastro para eventos presenciais. A pessoa aponta a câmera para o
 QR Code, preenche em ~30 segundos e o contato cai no seu painel. Feito para o
 cenário real de evento: internet ruim, pressa e nenhuma tolerância a perder lead.
 
-- **Formulário público** — `/`
-- **Painel + QR Code + exportações** — `/admin`
+A troca é de mão dupla: ela recebe o seu cartão digital (e salva seu contato),
+você recebe os dados dela, e no fim ela entra no grupo do evento.
+
+- **Formulário público + cartão do organizador** — `/`
+- **QR em tela cheia para mostrar na hora** — `/qr`
+- **Painel + exportações** — `/admin`
 - **Diagnóstico** — `/api/health`
+
+## Personalizar sem abrir o painel do Vercel
+
+Todo o conteúdo não secreto — seu nome, cargo, bio, foto, redes, link do grupo,
+nome do evento e os títulos da home — mora em **`public/perfil.json`**. Edite o
+arquivo, faça commit, e o Vercel republica sozinho.
+
+Campo vazio não aparece na tela, então dá para preencher aos poucos. As variáveis
+de ambiente `EVENT_NAME`, `WHATSAPP_GROUP_URL` e `ORGANIZER_WHATSAPP`, quando
+existem, têm prioridade sobre o arquivo — útil para trocar o link do grupo sem
+mexer no código.
 
 ---
 
@@ -77,9 +92,12 @@ Abra `/api/health`. Ele responde exatamente o que ainda falta configurar.
 ## No dia do evento
 
 1. Abra `/admin` no celular ou notebook e entre com o PIN.
-2. **Modo totem** deixa o QR em tela cheia — bom para apoiar na mesa ou projetar.
-   Dá também para baixar o PNG e imprimir/colar no crachá.
-3. Os cadastros aparecem no painel na hora.
+2. Para mostrar o QR na hora, abra **`/qr`** — tela cheia, mantém o celular aceso
+   e tem botão de compartilhar o link. Instalando o app na tela de início, o QR
+   também vira atalho (segure o ícone). No painel dá para baixar o PNG e
+   imprimir/colar no crachá.
+3. Os cadastros aparecem no painel na hora. Quem preencheu leva o seu cartão
+   digital e pode salvar seu contato com um toque.
 4. No fim: **Baixar agenda (.vcf)** → importe no celular. Todos viram contatos com
    o sufixo `[NomeDoEvento]`, ficando agrupados na agenda — daí o WhatsApp deixa
    adicionar todo mundo no grupo de uma vez.
@@ -118,10 +136,12 @@ fluxo inteiro sem criar conta em lugar nenhum. Os dados somem ao reiniciar.
 │   ├── health.js                          diagnóstico de configuração
 │   └── app-config.js                      dados públicos para o front
 ├── public/
-│   ├── index.html · admin.html            formulário e painel
+│   ├── index.html · admin.html · qr.html  formulário, painel e tela de QR
+│   ├── perfil.json                        seu cartão digital e textos do app
 │   ├── sw.js · manifest.webmanifest       PWA + Background Sync
 │   └── assets/
 │       ├── queue-core.js                  fila offline (página + Service Worker)
+│       ├── perfil.js · qr-draw.js · qr-view.js
 │       ├── app.js · admin.js · app.css
 │       └── qrcode.js                      gerador de QR (MIT, embutido)
 ├── scripts/

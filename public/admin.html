@@ -115,7 +115,8 @@
         <div class="qr-frame"><canvas id="qrCanvas"></canvas></div>
         <p class="tiny" style="margin:11px 0 12px;word-break:break-all" id="formUrl"></p>
         <div style="display:grid;gap:8px">
-          <button class="btn btn--sm" id="btnTotem" style="width:100%">Modo totem (tela cheia)</button>
+          <a class="btn btn--sm" href="/qr" target="_blank" rel="noopener" style="width:100%">Abrir tela de QR ↗</a>
+          <button class="btn btn--sm btn--ghost" id="btnTotem" style="width:100%">Modo totem (aqui mesmo)</button>
           <div class="btn-row">
             <button class="mini" id="btnCopyLink" style="flex:1;justify-content:center">Copiar link</button>
             <button class="mini" id="btnDownloadQr" style="flex:1;justify-content:center">Baixar PNG</button>
@@ -178,6 +179,7 @@
 </div>
 
 <script src="/assets/qrcode.js"></script>
+<script src="/assets/qr-draw.js"></script>
 <script src="/assets/admin.js"></script>
 </body>
 </html>

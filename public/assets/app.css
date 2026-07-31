@@ -404,3 +404,114 @@ h1, h2, h3, .display { font-family: var(--font-display); letter-spacing: -0.02em
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+/* =========================================================================
+   Cartão do organizador — o que a pessoa recebe ao escanear o QR.
+   ========================================================================= */
+
+.perfil-card {
+  position: relative;
+  padding: 16px;
+  margin-bottom: 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: linear-gradient(150deg, rgba(43, 107, 255, 0.14), rgba(255, 45, 85, 0.1));
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+}
+.perfil-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 70% 100% at 0% 0%, rgba(0, 229, 255, 0.16), transparent 60%);
+  pointer-events: none;
+}
+
+.perfil-topo { display: flex; align-items: center; gap: 13px; position: relative; }
+
+.perfil-avatar {
+  flex: 0 0 auto;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--cyan), var(--blue), var(--red));
+  display: grid; place-items: center;
+  box-shadow: 0 0 22px rgba(43, 107, 255, 0.35);
+}
+.perfil-foto, .perfil-monograma {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  object-fit: cover;
+  background: var(--surface-solid);
+}
+.perfil-monograma {
+  font-family: var(--font-display);
+  font-size: 19px; font-weight: 700; letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.perfil-id { min-width: 0; }
+.perfil-id b {
+  display: block;
+  font-family: var(--font-display); font-size: 17.5px; line-height: 1.2;
+}
+.perfil-id span { font-size: 13px; color: var(--ink-dim); }
+
+.perfil-bio {
+  position: relative;
+  margin-top: 12px;
+  font-size: 13.5px; line-height: 1.5; color: var(--ink-dim);
+}
+
+.perfil-links {
+  position: relative;
+  display: flex; flex-wrap: wrap; gap: 7px;
+  margin-top: 13px;
+}
+.perfil-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px;
+  font-size: 12.5px; font-weight: 600;
+  color: var(--ink-dim); text-decoration: none;
+  background: rgba(4, 6, 16, 0.5);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  transition: all 0.16s;
+}
+.perfil-link:hover { color: var(--ink); border-color: var(--line-strong); background: rgba(4, 6, 16, 0.75); }
+.perfil-link i { font-style: normal; opacity: 0.75; }
+
+.perfil-salvar { position: relative; width: 100%; margin-top: 13px; }
+
+/* Variante usada na tela de confirmação: mais respiro e centralizada. */
+.perfil-card--completo { text-align: left; padding: 20px; }
+
+/* =========================================================================
+   Tela de QR em tela cheia — o organizador mostra para a pessoa escanear.
+   ========================================================================= */
+
+.qr-stage {
+  min-height: 100dvh;
+  display: grid; place-items: center;
+  padding: 22px 20px calc(22px + env(safe-area-inset-bottom));
+  position: relative; z-index: 2;
+}
+.qr-inner { display: grid; gap: 18px; justify-items: center; width: min(520px, 100%); text-align: center; }
+
+.qr-holder {
+  background: #fff;
+  border-radius: 22px;
+  padding: 16px;
+  width: min(74vh, 88vw);
+  box-shadow: 0 0 70px rgba(43, 107, 255, 0.4), 0 0 120px rgba(255, 45, 85, 0.22);
+  animation: qrIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.qr-holder canvas { width: 100%; height: auto; display: block; image-rendering: pixelated; }
+@keyframes qrIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: none; } }
+
+.qr-titulo { font-size: clamp(23px, 6vw, 34px); }
+.qr-sub { color: var(--ink-dim); font-size: clamp(13.5px, 3.4vw, 16px); }
+.qr-url { font-size: 12px; color: var(--muted); word-break: break-all; }
+
+.qr-acoes { display: flex; gap: 9px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.qr-acoes .btn { width: auto; flex: 1 1 150px; }

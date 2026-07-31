@@ -286,47 +286,14 @@
 
   function formUrl() { return location.origin + '/?src=qr'; }
 
-  function drawQr(canvas, url, scale) {
-    var qr = qrcode(0, 'M');
-    qr.addData(url);
-    qr.make();
-
-    var count = qr.getModuleCount();
-    var quiet = 4;                       // zona de silêncio exigida pelo padrão
-    var total = count + quiet * 2;
-    var px = scale || Math.max(4, Math.floor(1024 / total));
-    var size = total * px;
-
-    canvas.width = size;
-    canvas.height = size;
-    var ctx = canvas.getContext('2d');
-
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, size, size);
-
-    // Gradiente azul -> vermelho, mantendo os módulos escuros o bastante para
-    // qualquer leitor de câmera.
-    var grad = ctx.createLinearGradient(0, 0, size, size);
-    grad.addColorStop(0, '#12307f');
-    grad.addColorStop(0.55, '#3a1f8a');
-    grad.addColorStop(1, '#9c0b2c');
-    ctx.fillStyle = grad;
-
-    for (var r = 0; r < count; r++) {
-      for (var c = 0; c < count; c++) {
-        if (qr.isDark(r, c)) {
-          ctx.fillRect((c + quiet) * px, (r + quiet) * px, px, px);
-        }
-      }
-    }
-  }
+  // O desenho vive em assets/qr-draw.js, compartilhado com a tela /qr.
 
   function renderQr() {
     var url = formUrl();
     $('#formUrl').textContent = url;
     $('#totemUrl').textContent = url;
-    drawQr($('#qrCanvas'), url);
-    drawQr($('#qrCanvasBig'), url);
+    QrDraw.desenhar($('#qrCanvas'), url);
+    QrDraw.desenhar($('#qrCanvasBig'), url);
   }
 
   $('#btnCopyLink').addEventListener('click', function () {
