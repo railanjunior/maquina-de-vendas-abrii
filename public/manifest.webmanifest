@@ -18,6 +18,13 @@
   ],
   "shortcuts": [
     {
+      "name": "Mostrar QR Code",
+      "short_name": "QR",
+      "description": "Tela cheia para a pessoa apontar a câmera",
+      "url": "/qr",
+      "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
       "name": "Painel de leads",
       "short_name": "Painel",
       "url": "/admin?src=atalho",

@@ -35,13 +35,16 @@
   <header style="margin-bottom:22px">
     <span class="eyebrow"><i class="dot"></i><span id="eventLabel">Adapta Summit</span></span>
     <h1 style="font-size:clamp(30px,8.5vw,42px);margin:16px 0 10px">
-      Vamos nos<br><span class="gradient-text">conectar.</span>
+      <span id="tituloLinha1">Vamos nos</span><br><span class="gradient-text" id="tituloLinha2">conectar.</span>
     </h1>
-    <p class="lead-text">
+    <p class="lead-text" id="subtitulo">
       Pré-cadastro em 30 segundos. Você entra no grupo oficial do evento
       e recebe os materiais direto no WhatsApp.
     </p>
   </header>
+
+  <!-- ====== Cartão do organizador: quem é que está te chamando ====== -->
+  <section id="perfilCard"></section>
 
   <!-- ================= Formulário ================= -->
   <section class="card card--glow" id="formCard">
@@ -174,11 +177,17 @@
 
     <div id="successExtra"></div>
 
+    <!-- Ação principal: entrar no grupo -->
+    <a class="btn btn--wa" id="btnGroup" href="#" style="display:none;margin-bottom:14px" target="_blank" rel="noopener">
+      Entrar no grupo do evento
+    </a>
+
+    <!-- Troca de mão dupla: agora ela leva os dados de quem a convidou -->
+    <div id="perfilCardSucesso" style="text-align:left"></div>
+
     <div style="display:grid;gap:10px;margin-top:6px">
-      <a class="btn btn--wa" id="btnGroup" href="#" style="display:none" target="_blank" rel="noopener">
-        Entrar no grupo do evento
-      </a>
       <button type="button" class="btn btn--ghost" id="btnInstall2">Adicionar à tela de início</button>
+      <button type="button" class="btn btn--ghost" id="btnShowQr">Mostrar QR para a próxima pessoa</button>
       <button type="button" class="btn btn--ghost" id="btnAgain">Cadastrar outra pessoa</button>
     </div>
   </section>
@@ -210,6 +219,7 @@
 </div>
 
 <script src="/assets/queue-core.js"></script>
+<script src="/assets/perfil.js"></script>
 <script src="/assets/app.js"></script>
 </body>
 </html>
