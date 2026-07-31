@@ -36,12 +36,16 @@ tudo que já leu, continuando utilizável (e exportável) offline.
 
 ### 1. Importar o projeto
 
-Em [vercel.com/new](https://vercel.com/new), importe este repositório.
+Em [vercel.com/new](https://vercel.com/new), importe este repositório e clique em
+**Deploy**. Não precisa mexer em nenhuma configuração: o `vercel.json` já define
+tudo. Não há build — é estático + funções serverless.
 
-> ⚠️ **Passo obrigatório:** em **Root Directory**, clique em *Edit* e selecione
-> `adapta-summit`. Sem isso o Vercel publica a raiz do repositório e o app não sobe.
+O formulário fica na raiz do domínio (`/`), então o QR Code aponta para a URL
+mais curta possível.
 
-Framework Preset: **Other**. Não há build — é estático + funções serverless.
+> A página do evento CDL (`index.html` na raiz do repositório) continua sendo
+> publicada pelo GitHub Pages e não é afetada — o Vercel publica o conteúdo de
+> `public/`.
 
 ### 2. Criar o banco (2 minutos)
 
@@ -94,7 +98,6 @@ no botão *Adicionar à tela de início*.
 ## Desenvolvimento local
 
 ```bash
-cd adapta-summit
 npm run dev     # http://localhost:3000  ·  PIN do painel: 1234
 npm test        # testes de validação e normalização
 ```
@@ -107,7 +110,8 @@ fluxo inteiro sem criar conta em lugar nenhum. Os dados somem ao reiniciar.
 ## Estrutura
 
 ```
-adapta-summit/
+.
+├── index.html                             página do evento CDL (GitHub Pages)
 ├── api/
 │   ├── _lib/{config,http,lead,store}.js   configuração, auth, validação, persistência
 │   ├── leads.js                           POST cadastro · GET lista · DELETE
